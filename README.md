@@ -84,7 +84,8 @@ Open **Nexus ZKT Settings** and add one row per machine.
 | Field | What to put in it |
 |---|---|
 | **Device Name** | Any name you like, e.g. `main-entrance`. It is saved on every check-in this device creates. |
-| **Device IP Address** | The device's address on your network, e.g. `192.168.1.201`. Port 4370 is assumed. |
+| **Device IP Address** | The device's address on your network, e.g. `192.168.1.201`. |
+| **Port** | Leave at `4370` unless your router forwards a second device to a different port. See [more than one door](#more-than-one-door). |
 | **Device Password** | Only if your device has a numeric communication key. Most do not — leave it empty. |
 | **In or Out** | `AUTO` suits almost everyone. Use `IN` or `OUT` for a machine that only records one direction, or `None` to leave it blank. See [How IN and OUT are decided](#how-in-and-out-are-decided). |
 | **Check Every (Minutes)** | How long to wait before reading this device again on the hourly schedule. |
@@ -140,6 +141,44 @@ bench --site your-site execute nexus_zkt_integration.nexus_biometric_attendance.
 bench --site your-site execute nexus_zkt_integration.nexus_biometric_attendance.api.collect_now --kwargs "{'force': 1}"
 ```
 
+## More than one door
+
+Add one row per machine. A front door and a back door are two rows, and everyone
+who uses either is handled as one person having one day.
+
+That last part matters more than it sounds. Somebody walks in the front at nine,
+out the back at one, in the front again at two, home out the back at six. If each
+machine were read on its own, the front door would see only nine and two and call
+the second one a departure, and the back door would get its half wrong too. So
+every machine is read first, all the punches are put in **one list in time
+order**, and only then is each one called an arrival or a departure. The order
+you list your devices in makes no difference to the result.
+
+Each machine still keeps its own **In or Out** setting. A common two-door setup
+is an entry-only reader on the front and an exit-only reader on the back: set one
+to `IN` and the other to `OUT`, and each says what it is while everything else
+alternates around them.
+
+Walking past two readers in the same lobby is one arrival, not an arrival and a
+departure a minute apart - the two-minute rule below applies across doors as well
+as within one.
+
+### Two devices, one address
+
+Two machines cannot share an address on your network, but they very often share
+one **public** address: the office router forwards port `4370` to the front door
+and, say, `4371` to the back. Put the same IP on both rows and give each its own
+**Port**.
+
+| Device Name | Device IP Address | Port |
+|---|---|---|
+| `front-door` | `203.0.113.7` | `4370` |
+| `back-door` | `203.0.113.7` | `4371` |
+
+Two rows with the same address **and** the same port are refused when you save:
+that is one machine listed twice, and reading it under two names would file the
+punches under whichever name came first, making the other door look broken.
+
 ## How IN and OUT are decided
 
 Your device records a *punch direction* with every punch when its **Punch State**
@@ -147,7 +186,8 @@ option is switched on (on an F22: Menu → System → Attendance → Punch State
 → Manual or Auto). Directions `0` and `4` become **IN**, `1` and `5` become **OUT**.
 
 Most machines are left with Punch State **off** and send `255` — no direction at
-all. With **In or Out** set to `AUTO`, the direction is then worked out per person:
+all. With **In or Out** set to `AUTO`, the direction is worked out per person,
+across every door they used:
 
 - the first punch is **IN**, the next **OUT**, the next **IN**, and so on;
 - an **IN** more than **14 hours** old is treated as a day somebody forgot to close,
@@ -195,7 +235,8 @@ on the internet cannot reach a device sitting on an office LAN address like
 `192.168.x.x`; the log then shows `[DEVICE ERROR] … timed out`. Pick one:
 
 **A. Port forwarding.** On the office router, forward TCP port 4370 to the device,
-then use the office's public IP as the Device IP Address. ZK devices have almost no
+then use the office's public IP as the Device IP Address. For a second machine,
+forward a different outside port to it and put that port in the **Port** field. ZK devices have almost no
 authentication, so restrict the forward to your server's IP if the router allows it.
 
 **B. SSH reverse tunnel**, from any office PC that can reach both:

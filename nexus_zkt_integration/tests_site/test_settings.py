@@ -12,8 +12,14 @@ class TestSettings(FrappeTestCase):
 		doc.set("devices", [])
 		return doc
 
-	def add(self, doc, device_id, ip="192.0.2.10"):
-		doc.append("devices", {"device_id": device_id, "ip": ip, "punch_direction": "AUTO"})
+	def add(self, doc, device_id, ip=None):
+		# Each row gets its own address unless the test is about sharing one,
+		# so the name checks below fail for the reason they are testing.
+		nth = len(doc.get("devices") or [])
+		doc.append(
+			"devices",
+			{"device_id": device_id, "ip": ip or f"192.0.2.{10 + nth}", "punch_direction": "AUTO"},
+		)
 
 	def test_the_single_exists_after_install(self):
 		self.assertTrue(frappe.get_doc(SETTINGS))
@@ -46,6 +52,49 @@ class TestSettings(FrappeTestCase):
 		doc = self.settings()
 		self.add(doc, "front-door")
 		self.add(doc, "  front-door  ")
+		with self.assertRaises(frappe.ValidationError):
+			doc.save()
+
+	def test_one_machine_listed_twice_is_refused(self):
+		# Both rows would be read, and the punches would file under whichever
+		# name came first - which looks like the other door has stopped working.
+		doc = self.settings()
+		self.add(doc, "door-a", ip="192.0.2.50")
+		self.add(doc, "door-b", ip="192.0.2.50")
+		with self.assertRaises(frappe.ValidationError):
+			doc.save()
+
+	def test_the_duplicate_message_points_at_the_port(self):
+		doc = self.settings()
+		self.add(doc, "door-a", ip="192.0.2.50")
+		self.add(doc, "door-b", ip="192.0.2.50")
+		with self.assertRaises(frappe.ValidationError) as caught:
+			doc.save()
+		self.assertIn("port", str(caught.exception).lower())
+
+	def test_two_machines_behind_one_address_are_fine_on_different_ports(self):
+		# The office router forwards 4370 to the front door and 4371 to the back.
+		doc = self.settings()
+		self.add(doc, "front-door", ip="203.0.113.7")
+		doc.devices[-1].port = 4370
+		self.add(doc, "back-door", ip="203.0.113.7")
+		doc.devices[-1].port = 4371
+		doc.save()
+		self.assertEqual([row.port for row in doc.devices], [4370, 4371])
+
+	def test_the_same_address_and_port_written_with_spaces_is_still_a_duplicate(self):
+		doc = self.settings()
+		self.add(doc, "door-a", ip="192.0.2.50")
+		self.add(doc, "door-b", ip="  192.0.2.50  ")
+		with self.assertRaises(frappe.ValidationError):
+			doc.save()
+
+	def test_a_blank_port_counts_as_the_standard_one(self):
+		# One row left empty and one set to 4370 are the same machine.
+		doc = self.settings()
+		self.add(doc, "door-a", ip="192.0.2.50")
+		self.add(doc, "door-b", ip="192.0.2.50")
+		doc.devices[-1].port = 4370
 		with self.assertRaises(frappe.ValidationError):
 			doc.save()
 

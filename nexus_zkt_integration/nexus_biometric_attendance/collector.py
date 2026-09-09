@@ -6,13 +6,14 @@
 import functools
 import inspect
 import json
+from dataclasses import dataclass, field
 from datetime import datetime
 
 import frappe
 
 from .journal import Journal, RunStatus
 from .punch import REPEAT, DirectionRule, Reading, Tally
-from .reader import DeviceUnreachable, read_punches
+from .reader import DeviceUnreachable, device_port, read_punches
 
 STAFF_DOCTYPE = "Employee"
 CHECKIN_DOCTYPE = "Employee Checkin"
@@ -23,6 +24,16 @@ SHIFT_DOCTYPE = "Shift Type"
 READING_SHARE = 0.3
 WRITING_SHARE = 0.65
 PROGRESS_REPORTS_PER_DEVICE = 25
+
+
+@dataclass
+class Take:
+	"""What one machine handed over this run, and how its punches fared."""
+
+	device: object
+	read_at: datetime
+	punches: list
+	tally: Tally = field(default_factory=Tally)
 
 
 @functools.lru_cache(maxsize=1)
@@ -92,9 +103,31 @@ class Collector:
 		}
 
 	def _visit_every_device(self):
-		"""Returns {device name: when it was read} for the ones that worked."""
-		read_at = {}
-		share = 100.0 / (len(self.devices) or 1)
+		"""Read every machine that is due, then write what they collectively saw.
+
+		The two steps are separate on purpose. A person walks in the front door
+		and out the back, so their day is spread across machines; deciding which
+		punch is an arrival while looking at only one machine's log gets the
+		second half of the day backwards. Every punch is read first, then the
+		whole lot is put in time order and read as one story.
+		"""
+		staff = self._staff_by_device_id()
+		if not staff:
+			self.journal.problem(
+				"Nothing was read: nobody active has an Attendance Device ID yet. Fill that "
+				"field on each Employee with their user number on the machine."
+			)
+			return {}
+
+		takes = self._read_every_device(staff)
+		self._record(takes, staff)
+
+		return {take.device.device_id: take.read_at for take in takes}
+
+	def _read_every_device(self, staff):
+		"""Ask each machine that is due for its punches. One entry per success."""
+		takes = []
+		share = READING_SHARE * 100.0 / (len(self.devices) or 1)
 
 		for position, device in enumerate(self.devices):
 			self._slice_start, self._slice_width = position * share, share
@@ -108,14 +141,29 @@ class Collector:
 				)
 				continue
 
+			self._show(0.1, f"{device.device_id}: connecting to {device.ip}:{device_port(device)}")
 			started = datetime.now()
-			if self._collect_one(device):
-				read_at[device.device_id] = started
+			try:
+				everything = read_punches(device, on_warning=self.journal.warn)
+			except DeviceUnreachable as unreachable:
+				self.journal.problem(str(unreachable))
+				# Last Read is deliberately left alone: nothing was read, so the
+				# next scheduled run should try again rather than wait an hour.
+				continue
+
+			mine = [punch for punch in everything if punch.user_id in staff]
+			strangers = len(everything) - len(mine)
+			self.journal.write(
+				f"{device.device_id} held {len(everything)} punches: {len(mine)} from active staff, "
+				f"{strangers} from people with no matching active Employee.",
+				notable=True,
+			)
 
 			device.last_run = started
 			device.save(ignore_permissions=True)
+			takes.append(Take(device=device, read_at=started, punches=mine))
 
-		return read_at
+		return takes
 
 	def _wait_remaining(self, device):
 		"""Minutes elapsed since the last read, if it is too soon to read again."""
@@ -124,52 +172,34 @@ class Collector:
 		elapsed = (datetime.now() - device.last_run).total_seconds() / 60
 		return elapsed if elapsed < (device.pull_frequency or 0) else None
 
-	def _collect_one(self, device):
-		staff = self._staff_by_device_id()
-		if not staff:
-			self.journal.problem(
-				f"{device.device_id} was skipped: nobody active has an Attendance Device ID yet. "
-				"Fill that field on each Employee with their user number on the machine."
-			)
-			return False
+	def _record(self, takes, staff):
+		"""Write check-ins for every punch of the run, oldest first.
 
-		self._show(0.02, f"{device.device_id}: connecting to {device.ip}")
-		try:
-			everything = read_punches(device, on_warning=self.journal.warn)
-		except DeviceUnreachable as unreachable:
-			self.journal.problem(str(unreachable))
-			return False
-
-		ours = [p for p in everything if p.user_id in staff]
-		strangers = len(everything) - len(ours)
-		self.journal.write(
-			f"{device.device_id} held {len(everything)} punches: {len(ours)} from active staff, "
-			f"{strangers} from people with no matching active Employee.",
-			notable=True,
+		One stream across every machine, because a person's day is one story
+		however many doors they used. Each punch still answers to its own
+		machine's In-or-Out setting, so an entry-only door and an exit-only door
+		keep saying what they are while everything else alternates around them.
+		"""
+		stream = sorted(
+			((punch, take) for take in takes for punch in take.punches),
+			key=lambda pair: (pair[0].at, pair[1].device.device_id),
 		)
-		self._show(READING_SHARE, f"{device.device_id}: {len(ours)} punches to check")
-		if not ours:
-			return True
+		if not stream:
+			for take in takes:
+				self.journal.write(take.tally.describe(take.device.device_id, 0), notable=True)
+			return
 
-		self._write_checkins(device, ours, staff)
-		# The machine's memory is never touched by a run. A punch nobody matched
-		# exists only on the device, and a read that erased it could not give it
-		# back. Erasing is its own deliberate button.
-		return True
-
-	def _write_checkins(self, device, punches, staff):
-		rule = DirectionRule(device.punch_direction)
-		known = self._already_recorded(set(staff.values()), punches[0].at)
-		latest = {}  # employee -> Reading, as this run learns it
-		tally = Tally()
+		rules = {take.device.device_id: DirectionRule(take.device.punch_direction) for take in takes}
+		known = self._already_recorded(set(staff.values()), stream[0][0].at)
+		latest = {}  # employee -> the most recent Reading this run knows about
 		per_person = {}
-		report_every = max(1, len(punches) // PROGRESS_REPORTS_PER_DEVICE)
+		report_every = max(1, len(stream) // PROGRESS_REPORTS_PER_DEVICE)
 
-		for seen, punch in enumerate(punches, start=1):
-			if seen % report_every == 0 or seen == len(punches):
-				self._show(
-					READING_SHARE + WRITING_SHARE * seen / len(punches),
-					f"{device.device_id}: {seen} of {len(punches)} checked, {tally.stored} added",
+		for seen, (punch, take) in enumerate(stream, start=1):
+			if seen % report_every == 0 or seen == len(stream):
+				self._show_overall(
+					READING_SHARE + WRITING_SHARE * seen / len(stream),
+					f"{seen} of {len(stream)} punches checked",
 				)
 
 			employee = staff[punch.user_id]
@@ -177,28 +207,33 @@ class Collector:
 
 			if (employee, punch.at) in known:
 				latest[employee] = Reading(punch.at, known[(employee, punch.at)])
-				tally.already_known += 1
+				take.tally.already_known += 1
 				continue
 
 			previous = latest.get(employee) or self._last_reading_before(employee, punch.at)
-			direction = rule.decide(punch, previous)
+			direction = rules[take.device.device_id].decide(punch, previous)
 			if direction == REPEAT:
-				tally.repeats += 1
+				take.tally.repeats += 1
 				continue
 
-			stored, refusal = self._store(device, punch, direction)
+			stored, refusal = self._store(take.device, punch, direction)
 			if stored:
 				latest[employee] = Reading(punch.at, direction)
-				tally.count(direction)
+				known[(employee, punch.at)] = direction  # a second door at the same instant
+				take.tally.count(direction)
 			else:
-				tally.rejected += 1
+				take.tally.rejected += 1
 				self.journal.refusal(f"{punch.user_id} at {punch.at}: {refusal}")
 
-		self.journal.write(tally.describe(device.device_id, len(punches)), notable=True)
+		for take in takes:
+			self.journal.write(take.tally.describe(take.device.device_id, len(take.punches)), notable=True)
 		self.journal.write(
 			"Punches per person - "
 			+ ", ".join(f"{uid}: {count}" for uid, count in sorted(per_person.items()))
 		)
+		# The machines' own memory is never touched by a run. A punch nobody
+		# matched exists only on the device, and a read that erased it could not
+		# give it back. Erasing is its own deliberate button.
 
 	# ------------------------------------------------------------------
 	# what ERPNext already knows
@@ -286,3 +321,7 @@ class Collector:
 	def _show(self, fraction, description):
 		"""Move the bar. `fraction` is 0..1 within the current machine's slice."""
 		self.status.advance(self._slice_start + self._slice_width * fraction, description)
+
+	def _show_overall(self, fraction, description):
+		"""Move the bar. `fraction` is 0..1 across the whole run."""
+		self.status.advance(fraction * 100.0, description)
