@@ -135,9 +135,9 @@ and that `pause_scheduler` is not `1` in `sites/common_site_config.json`.
 **From the command line.**
 
 ```bash
-bench --site your-site execute nexus_zkt_integration.nexus_biometric_attendance.script.sync_attendance_log_to_erpnext
+bench --site your-site execute nexus_zkt_integration.nexus_biometric_attendance.api.collect_now
 # ignore the wait time:
-bench --site your-site execute nexus_zkt_integration.nexus_biometric_attendance.script.sync_attendance_log_to_erpnext --kwargs "{'force': 1}"
+bench --site your-site execute nexus_zkt_integration.nexus_biometric_attendance.api.collect_now --kwargs "{'force': 1}"
 ```
 
 ## How IN and OUT are decided
@@ -155,8 +155,8 @@ all. With **In or Out** set to `AUTO`, the direction is then worked out per pers
 - a second punch within **2 minutes** of the last one is the same finger twice and
   is ignored.
 
-Both limits are `MAX_SHIFT_HOURS` and `DUPLICATE_WINDOW_SECONDS` at the top of
-[`script.py`](nexus_zkt_integration/nexus_biometric_attendance/script.py).
+Both limits are `DEFAULT_OPEN_SHIFT_LIMIT` and `DEFAULT_REPEAT_WINDOW` at the top of
+[`punch.py`](nexus_zkt_integration/nexus_biometric_attendance/punch.py).
 
 Check-ins that already exist are never modified. If you want IN/OUT on check-ins
 created before you installed this, delete them and sync again — the punches are

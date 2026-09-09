@@ -41,11 +41,11 @@ scheduler_events = {
 	# does not fit in the default queue's 300s limit. The "Sync Attendance Now"
 	# button runs the sync directly instead.
 	"hourly_long": [
-		"nexus_zkt_integration.nexus_biometric_attendance.script.scheduled_sync",
+		"nexus_zkt_integration.nexus_biometric_attendance.api.scheduled_collection",
 	],
 	# Purge the Nexus Attendance Log table.
 	"weekly": [
-		"nexus_zkt_integration.nexus_biometric_attendance.script.clear_logs",
+		"nexus_zkt_integration.nexus_biometric_attendance.api.purge_journal",
 	],
 }
 
