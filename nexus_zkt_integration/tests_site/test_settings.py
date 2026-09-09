@@ -108,5 +108,29 @@ class TestSettings(FrappeTestCase):
 		self.assertNotEqual(reloaded.devices[0].device_password, "1234")
 		self.assertEqual(reloaded.devices[0].get_password("device_password"), "1234")
 
-	def test_the_shift_mapping_starts_empty_rather_than_null(self):
-		self.assertIn(frappe.get_doc(SETTINGS).shift_type_device_mapping or "[]", ("[]", "{}"))
+	def test_installing_leaves_the_shift_mapping_as_an_empty_list(self):
+		# Never null: the collector reads this field on every run, and a null
+		# would make the form show an empty box that looks broken. Asserting on
+		# whatever the site happens to hold would fail the moment somebody
+		# configured a real mapping, so drive the install helper instead.
+		from nexus_zkt_integration.install import create_settings
+
+		before = frappe.db.get_single_value(SETTINGS, "shift_type_device_mapping")
+		try:
+			frappe.db.set_single_value(SETTINGS, "shift_type_device_mapping", None)
+			create_settings()
+			self.assertEqual(frappe.db.get_single_value(SETTINGS, "shift_type_device_mapping"), "[]")
+		finally:
+			frappe.db.set_single_value(SETTINGS, "shift_type_device_mapping", before)
+
+	def test_a_mapping_someone_configured_is_left_alone_by_a_reinstall(self):
+		from nexus_zkt_integration.install import create_settings
+
+		mine = '[{"shift_type_name": "Day Shift", "related_device_id": ["front-door"]}]'
+		before = frappe.db.get_single_value(SETTINGS, "shift_type_device_mapping")
+		try:
+			frappe.db.set_single_value(SETTINGS, "shift_type_device_mapping", mine)
+			create_settings()
+			self.assertEqual(frappe.db.get_single_value(SETTINGS, "shift_type_device_mapping"), mine)
+		finally:
+			frappe.db.set_single_value(SETTINGS, "shift_type_device_mapping", before)
