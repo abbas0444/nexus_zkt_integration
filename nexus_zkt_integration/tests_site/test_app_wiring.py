@@ -44,11 +44,11 @@ class TestHooks(FrappeTestCase):
 
 	def test_the_hourly_job_is_the_sync(self):
 		events = self.hooks["scheduler_events"]
-		self.assertIn(f"{APP}.nexus_biometric_attendance.script.scheduled_sync", events["hourly_long"])
+		self.assertIn(f"{APP}.nexus_biometric_attendance.api.scheduled_collection", events["hourly_long"])
 
 	def test_the_weekly_job_clears_the_activity_log(self):
 		events = self.hooks["scheduler_events"]
-		self.assertIn(f"{APP}.nexus_biometric_attendance.script.clear_logs", events["weekly"])
+		self.assertIn(f"{APP}.nexus_biometric_attendance.api.purge_journal", events["weekly"])
 
 	def test_the_apps_screen_entry_points_at_a_real_permission_check(self):
 		entry = self.hooks["add_to_apps_screen"][0]
@@ -70,10 +70,10 @@ class TestHooks(FrappeTestCase):
 
 class TestWhitelistedMethods(FrappeTestCase):
 	PATHS = (
-		f"{APP}.nexus_biometric_attendance.script.sync_attendance_log_to_erpnext",
-		f"{APP}.nexus_biometric_attendance.script.get_sync_status",
-		f"{APP}.nexus_biometric_attendance.script.clear_logs",
-		f"{APP}.nexus_biometric_attendance.script.clear_device_logs",
+		f"{APP}.nexus_biometric_attendance.api.collect_now",
+		f"{APP}.nexus_biometric_attendance.api.sync_status",
+		f"{APP}.nexus_biometric_attendance.api.purge_journal",
+		f"{APP}.nexus_biometric_attendance.api.erase_device",
 	)
 
 	def test_the_form_and_list_buttons_can_reach_their_methods(self):
@@ -83,6 +83,54 @@ class TestWhitelistedMethods(FrappeTestCase):
 				frappe.whitelisted,
 				f"{path} is called from the browser but is not whitelisted",
 			)
+
+
+class TestTheBrowserAndTheServerAgree(FrappeTestCase):
+	"""Method paths written in JS are strings; a rename that misses one fails
+	only when somebody clicks the button. Read them out of the files instead."""
+
+	def js_files(self):
+		import os
+
+		root = frappe.get_app_path(APP)
+		for folder, _dirs, files in os.walk(root):
+			for name in files:
+				if name.endswith(".js"):
+					yield os.path.join(folder, name)
+
+	def test_every_method_the_client_calls_exists_and_is_whitelisted(self):
+		import re
+
+		pattern = re.compile(r"nexus_zkt_integration\.[a-z_.]+")
+		found = set()
+		for path in self.js_files():
+			for hit in pattern.findall(open(path).read()):
+				if hit.count(".") >= 3:
+					found.add(hit)
+		self.assertTrue(found, "no server method paths were found in the client scripts")
+		for path in sorted(found):
+			self.assertIn(
+				resolve(path), frappe.whitelisted, f"{path} is called from the browser but is not whitelisted"
+			)
+
+	def test_no_reference_to_the_old_module_survives(self):
+		import os
+
+		# Assembled rather than written out, so this test does not find itself.
+		retired = "nexus_biometric_attendance" + "." + "script"
+		root = frappe.get_app_path(APP)
+		for folder, _dirs, files in os.walk(root):
+			if "__pycache__" in folder or "tests_site" in folder:
+				continue
+			for name in files:
+				if not name.endswith((".py", ".js")):
+					continue
+				body = open(os.path.join(folder, name)).read()
+				self.assertNotIn(
+					retired,
+					body,
+					f"{name} still points at the module that was replaced",
+				)
 
 
 class TestDocTypes(FrappeTestCase):

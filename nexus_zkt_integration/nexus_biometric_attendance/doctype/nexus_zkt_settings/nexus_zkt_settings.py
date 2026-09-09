@@ -31,6 +31,6 @@ def get_nexus_zkt_settings():
 	return frappe.get_doc("Nexus ZKT Settings")
 
 
-# The sync and clear-logs entry points live in
-# nexus_zkt_integration.nexus_biometric_attendance.script and are wired up
-# through hooks.scheduler_events.
+# Reading the machines is not this document's job. The entry points live in
+# nexus_zkt_integration.nexus_biometric_attendance.api and are wired to the
+# scheduler through hooks.scheduler_events.

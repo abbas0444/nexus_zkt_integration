@@ -6,7 +6,7 @@ frappe.listview_settings["Nexus Attendance Log"] = {
 		const btn = listview.page.add_inner_button(__("Clear Logs"), () => {
 			frappe.confirm(__("Delete every entry in this activity log?"), () => {
 				frappe.call({
-					method: "nexus_zkt_integration.nexus_biometric_attendance.script.clear_logs",
+					method: "nexus_zkt_integration.nexus_biometric_attendance.api.purge_journal",
 					freeze: true,
 					freeze_message: __("Clearing..."),
 					callback(r) {
