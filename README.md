@@ -13,12 +13,12 @@
 
 ---
 
-## You are on the **version-16** branch
+## You are on the **version-15** branch
 
 | Your ERPNext / HRMS | Branch to install |
 |---|---|
-| **Version 16** | `version-16` &nbsp;&larr; *you are here* |
-| **Version 15** | [`version-15`](../../tree/version-15) |
+| **Version 16** | [`version-16`](../../tree/version-16) |
+| **Version 15** | `version-15` &nbsp;&larr; *you are here* |
 
 Both branches carry the same features. Pick the one that matches the software you
 already run, and install it with `--branch`.
@@ -43,7 +43,7 @@ happened and why.
 
 ## What you need
 
-- Frappe, ERPNext and HRMS **version 16** (use the `version-15` branch for 15)
+- Frappe, ERPNext and HRMS **version 15** (use the `version-16` branch for 16)
 - The Python package `pyzk` — installed for you with the app
 - The device reachable from your server on TCP port **4370**
 - Background workers running (`bench start` in development, supervisor in production)
@@ -55,7 +55,7 @@ Tested against ZKTeco F22 and K40; anything speaking the ZK SDK protocol on port
 
 ```bash
 cd $PATH_TO_YOUR_BENCH
-bench get-app https://github.com/abbas0444/nexus_zkt_integration --branch version-16
+bench get-app https://github.com/abbas0444/nexus_zkt_integration --branch version-15
 bench --site your-site install-app nexus_zkt_integration
 ```
 

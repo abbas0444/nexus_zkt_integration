@@ -1,5 +1,4 @@
 {
- "app": "nexus_zkt_integration",
  "charts": [],
  "content": "[{\"id\":\"nzHeadStart\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>Start here</b></span>\",\"col\":12}},{\"id\":\"nzScSettings\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Devices & Settings\",\"col\":3}},{\"id\":\"nzScEmployee\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Employees\",\"col\":3}},{\"id\":\"nzScCheckin\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Employee Checkin\",\"col\":3}},{\"id\":\"nzScLog\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Activity Log\",\"col\":3}},{\"id\":\"nzSpacer\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"nzHeadAll\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>Everything else</b></span>\",\"col\":12}},{\"id\":\"nzCardSetup\",\"type\":\"card\",\"data\":{\"card_name\":\"Setup\",\"col\":4}},{\"id\":\"nzCardResults\",\"type\":\"card\",\"data\":{\"card_name\":\"Results\",\"col\":4}}]",
  "creation": "2026-09-09 10:00:00.000000",
