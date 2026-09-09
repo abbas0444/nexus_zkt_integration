@@ -135,7 +135,7 @@ class RunStatus:
 	def _store(self, **fields):
 		"""Neither the cache nor the socket is allowed to break a sync."""
 		try:
-			snapshot = frappe.cache.get_value(STATUS_CACHE_KEY) or {}
+			snapshot = read_status() or {}
 			snapshot.update(fields)
 			snapshot["updated_ts"] = time.time()  # epoch: no timezone to get wrong
 			frappe.cache.set_value(STATUS_CACHE_KEY, snapshot, expires_in_sec=STATUS_KEEPS_FOR)
@@ -153,6 +153,20 @@ class RunStatus:
 			pass
 
 
+def read_status():
+	"""Read the stored snapshot.
+
+	`expires=True` is not optional. This key is written with an expiry, and on
+	Frappe 15 a key written that way is never put in frappe.local.cache - while
+	a *miss* on an ordinary read is. Read the key once before the first write
+	and None gets pinned locally for the rest of the request, so every later
+	read returns None however many times it has been written since. The progress
+	bar would never move, and the guard against two overlapping runs would never
+	see the run that is already going.
+	"""
+	return frappe.cache.get_value(STATUS_CACHE_KEY, expires=True)
+
+
 def current_status():
 	"""What the settings form should draw right now.
 
@@ -160,7 +174,7 @@ def current_status():
 	word is reported as broken, and the correction is written back so the next
 	caller does not have to work it out again.
 	"""
-	snapshot = frappe.cache.get_value(STATUS_CACHE_KEY) or {}
+	snapshot = read_status() or {}
 	if snapshot.get("state") != RUNNING:
 		return snapshot
 
