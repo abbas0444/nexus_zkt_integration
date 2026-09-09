@@ -13,18 +13,29 @@ from zk import ZK
 
 from .punch import Punch
 
-ZK_PORT = 4370
+DEFAULT_ZK_PORT = 4370
 CONNECT_TIMEOUT = 10
+
+
+def device_port(device):
+	"""Which port to knock on.
+
+	Two machines cannot share an address on a network, but they very often
+	share one *public* address: the office router forwards 4370 to the front
+	door and some other port to the back. An empty field means the standard one.
+	"""
+	return int(device.get("port") or DEFAULT_ZK_PORT)
 
 
 class DeviceUnreachable(Exception):
 	"""The machine did not answer. Carries a sentence fit to show someone."""
 
-	def __init__(self, device_name, address, cause):
+	def __init__(self, device_name, address, port, cause):
 		self.device_name = device_name
 		self.address = address
+		self.port = port
 		self.cause = cause
-		super().__init__(f"Could not reach {device_name} at {address}:{ZK_PORT} from this server - {cause}")
+		super().__init__(f"Could not reach {device_name} at {address}:{port} from this server - {cause}")
 
 
 def communication_key(device, on_warning=None):
@@ -55,9 +66,10 @@ def connected(device, on_warning=None):
 	wherever ICMP is filtered or the binary is absent - a container, a forwarded
 	port - even when 4370 is perfectly reachable. Hence ommit_ping.
 	"""
+	port = device_port(device)
 	machine = ZK(
 		device.ip,
-		port=ZK_PORT,
+		port=port,
 		password=communication_key(device, on_warning),
 		timeout=CONNECT_TIMEOUT,
 		ommit_ping=True,
@@ -67,7 +79,7 @@ def connected(device, on_warning=None):
 		try:
 			session = machine.connect()
 		except Exception as cause:
-			raise DeviceUnreachable(device.device_id, device.ip, cause) from cause
+			raise DeviceUnreachable(device.device_id, device.ip, port, cause) from cause
 		yield session
 	finally:
 		if session:

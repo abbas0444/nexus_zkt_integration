@@ -8,6 +8,7 @@
  "field_order": [
   "device_id",
   "ip",
+  "port",
   "device_password",
   "punch_direction",
   "pull_frequency",
@@ -33,7 +34,16 @@
    "label": "Device IP Address",
    "reqd": 1,
    "columns": 2,
-   "description": "The address of the device on your network, such as 192.168.1.201. Port 4370 is used."
+   "description": "The device's address on your network, such as 192.168.1.201. Two devices behind one public address are told apart by the port beside this field."
+  },
+  {
+   "fieldname": "port",
+   "fieldtype": "Int",
+   "label": "Port",
+   "default": "4370",
+   "in_list_view": 1,
+   "columns": 1,
+   "description": "Leave this at 4370 unless your router forwards a second device to a different port."
   },
   {
    "fieldname": "device_password",
@@ -67,7 +77,7 @@
    "fieldtype": "Datetime",
    "label": "Last Read",
    "in_list_view": 1,
-   "columns": 2,
+   "columns": 1,
    "read_only": 1,
    "description": "Filled in automatically. Clear it to make the next scheduled run read this device."
   },
