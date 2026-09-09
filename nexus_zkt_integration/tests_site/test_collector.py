@@ -18,6 +18,7 @@ from nexus_zkt_integration.nexus_biometric_attendance.journal import (
 	Journal,
 	a_run_is_under_way,
 	current_status,
+	read_status,
 )
 
 
@@ -160,25 +161,39 @@ class TestWhatTheFormIsTold(FrappeTestCase):
 	def test_the_correction_is_written_back_so_it_is_only_worked_out_once(self):
 		frappe.cache.set_value(STATUS_CACHE_KEY, {"state": RUNNING, "updated_ts": time.time() - 3600})
 		current_status()
-		self.assertEqual(frappe.cache.get_value(STATUS_CACHE_KEY)["state"], BROKEN)
+		self.assertEqual(read_status()["state"], BROKEN)
 
 	def test_a_finished_run_keeps_its_result_however_old(self):
 		frappe.cache.set_value(STATUS_CACHE_KEY, {"state": "done", "updated_ts": 0, "percent": 100})
 		self.assertEqual(current_status()["state"], "done")
+
+	def test_progress_can_be_read_back_after_a_read_that_found_nothing(self):
+		# Frappe 15 remembers a miss in frappe.local.cache, and a key written
+		# with an expiry never refreshes that copy. Reading this key before the
+		# first write would then pin None for the rest of the request: the bar
+		# would never move and two runs could overlap unnoticed. read_status()
+		# passes expires=True to stay out of that local copy.
+		frappe.cache.delete_value(STATUS_CACHE_KEY)
+		self.assertEqual(current_status(), {})  # the read that does the damage
+
+		a_run().status.begin()
+
+		self.assertEqual(current_status().get("state"), RUNNING)
+		self.assertTrue(a_run_is_under_way())
 
 	def test_the_bar_never_reaches_the_end_while_work_remains(self):
 		run = a_run(live=False)
 		run.status.begin()
 		run._slice_start, run._slice_width = 0, 100
 		run._show(1.0, "nearly there")
-		self.assertLessEqual(frappe.cache.get_value(STATUS_CACHE_KEY)["percent"], 99)
+		self.assertLessEqual(read_status()["percent"], 99)
 
 	def test_each_machine_gets_its_own_stretch_of_the_bar(self):
 		run = a_run()
 		run.status.begin()
 		run._slice_start, run._slice_width = 50, 50  # the second of two machines
 		run._show(0.5, "halfway through the second machine")
-		self.assertEqual(frappe.cache.get_value(STATUS_CACHE_KEY)["percent"], 75)
+		self.assertEqual(read_status()["percent"], 75)
 
 
 class TestLookingUpStaff(FrappeTestCase):
