@@ -3,10 +3,25 @@ name = "nexus_zkt_integration"
 authors = [
     { name = "Abbas Raza", email = "abbasraza0444@gmail.com"}
 ]
-description = "Pull attendance punches from ZKTeco biometric devices straight into Employee Checkin, on Frappe HRMS 15 and 16."
+description = "Pull attendance punches from ZKTeco biometric devices straight into Employee Checkin, across every door, on Frappe HRMS 15 and 16."
 requires-python = ">=3.10"
 readme = "README.md"
 license = { file = "license.txt" }
+keywords = [
+    "frappe", "erpnext", "hrms", "attendance", "biometric", "zkteco", "zk",
+    "employee-checkin", "time-attendance", "fingerprint", "access-control",
+]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Environment :: Web Environment",
+    "Intended Audience :: End Users/Desktop",
+    "License :: OSI Approved :: MIT License",
+    "Natural Language :: English",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Topic :: Office/Business",
+    "Topic :: Office/Business :: Scheduling",
+]
 dynamic = ["version"]
 dependencies = [
     # "frappe~=16.0.0" # Installed and managed by bench.
@@ -16,6 +31,9 @@ dependencies = [
 [project.urls]
 Homepage = "https://github.com/abbas0444/nexus_zkt_integration"
 Repository = "https://github.com/abbas0444/nexus_zkt_integration"
+Documentation = "https://github.com/abbas0444/nexus_zkt_integration/wiki"
+Changelog = "https://github.com/abbas0444/nexus_zkt_integration/blob/version-16/CHANGELOG.md"
+"Bug Tracker" = "https://github.com/abbas0444/nexus_zkt_integration/issues"
 
 [build-system]
 requires = ["flit_core >=3.4,<4"]
