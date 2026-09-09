@@ -1,0 +1,59 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2026-09-09 10:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "devices",
+  "shift_section",
+  "shift_type_device_mapping"
+ ],
+ "fields": [
+  {
+   "fieldname": "devices",
+   "fieldtype": "Table",
+   "label": "Your Devices",
+   "options": "Nexus ZKT Device",
+   "description": "One row per ZKTeco device. Add the device's name and IP address, save, then press Sync Attendance Now."
+  },
+  {
+   "fieldname": "shift_section",
+   "fieldtype": "Section Break",
+   "label": "Shift Types (Optional)",
+   "description": "Only needed if HRMS marks attendance for you automatically. Leave the box below as [] otherwise."
+  },
+  {
+   "default": "[]",
+   "fieldname": "shift_type_device_mapping",
+   "fieldtype": "JSON",
+   "label": "Shift Type Device Mapping",
+   "description": "Tells HRMS auto attendance how far the check-ins are complete. After every successful read of a shift's devices, that Shift Type's \"Last Sync of Checkin\" is set to the read time. Write a JSON list using your exact Shift Type names and the Device Names from the table above. Example:<br><code>[{\"shift_type_name\": \"Morning Shift\", \"related_device_id\": [\"main-entrance\"]}, {\"shift_type_name\": \"Evening Shift\", \"related_device_id\": [\"main-entrance\", \"back-gate\"]}]</code><br>Leave it as <code>[]</code> if you do not use auto attendance."
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "issingle": 1,
+ "links": [],
+ "modified": "2026-09-09 10:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Nexus Biometric Attendance",
+ "name": "Nexus ZKT Settings",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

@@ -1,0 +1,108 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2026-09-09 10:00:00.000000",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "device_id",
+  "ip",
+  "device_password",
+  "punch_direction",
+  "pull_frequency",
+  "last_run",
+  "location_section",
+  "latitude",
+  "longitude"
+ ],
+ "fields": [
+  {
+   "fieldname": "device_id",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Device Name",
+   "reqd": 1,
+   "columns": 2,
+   "description": "Any name you choose, such as main-entrance. It is saved on every check-in this device creates."
+  },
+  {
+   "fieldname": "ip",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Device IP Address",
+   "reqd": 1,
+   "columns": 2,
+   "description": "The address of the device on your network, such as 192.168.1.201. Port 4370 is used."
+  },
+  {
+   "fieldname": "device_password",
+   "fieldtype": "Password",
+   "in_list_view": 1,
+   "label": "Device Password",
+   "columns": 1,
+   "description": "Only if your device has a numeric communication key. Most do not - leave it empty."
+  },
+  {
+   "default": "AUTO",
+   "fieldname": "punch_direction",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "In or Out",
+   "options": "AUTO\nIN\nOUT\nNone",
+   "columns": 2,
+   "description": "AUTO works for almost everyone. Use IN or OUT only for a device that records one direction. None leaves it blank."
+  },
+  {
+   "fieldname": "pull_frequency",
+   "fieldtype": "Int",
+   "label": "Check Every (Minutes)",
+   "in_list_view": 1,
+   "columns": 1,
+   "default": "60",
+   "description": "How long to wait before reading this device again on the hourly schedule."
+  },
+  {
+   "fieldname": "last_run",
+   "fieldtype": "Datetime",
+   "label": "Last Read",
+   "in_list_view": 1,
+   "columns": 2,
+   "read_only": 1,
+   "description": "Filled in automatically. Clear it to make the next scheduled run read this device."
+  },
+  {
+   "fieldname": "location_section",
+   "fieldtype": "Section Break",
+   "label": "Location (Optional)"
+  },
+  {
+   "default": "0",
+   "fieldname": "latitude",
+   "fieldtype": "Float",
+   "label": "Latitude",
+   "precision": "7"
+  },
+  {
+   "default": "0",
+   "fieldname": "longitude",
+   "fieldtype": "Float",
+   "label": "Longitude",
+   "precision": "7"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2026-09-09 10:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Nexus Biometric Attendance",
+ "name": "Nexus ZKT Device",
+ "owner": "Administrator",
+ "permissions": [],
+ "row_format": "Dynamic",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

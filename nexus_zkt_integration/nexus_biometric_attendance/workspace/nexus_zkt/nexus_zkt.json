@@ -1,0 +1,131 @@
+{
+ "app": "nexus_zkt_integration",
+ "charts": [],
+ "content": "[{\"id\":\"nzHeadStart\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>Start here</b></span>\",\"col\":12}},{\"id\":\"nzScSettings\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Devices & Settings\",\"col\":3}},{\"id\":\"nzScEmployee\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Employees\",\"col\":3}},{\"id\":\"nzScCheckin\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Employee Checkin\",\"col\":3}},{\"id\":\"nzScLog\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Activity Log\",\"col\":3}},{\"id\":\"nzSpacer\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"nzHeadAll\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>Everything else</b></span>\",\"col\":12}},{\"id\":\"nzCardSetup\",\"type\":\"card\",\"data\":{\"card_name\":\"Setup\",\"col\":4}},{\"id\":\"nzCardResults\",\"type\":\"card\",\"data\":{\"card_name\":\"Results\",\"col\":4}}]",
+ "creation": "2026-09-09 10:00:00.000000",
+ "custom_blocks": [],
+ "docstatus": 0,
+ "doctype": "Workspace",
+ "for_user": "",
+ "hide_custom": 0,
+ "icon": "users",
+ "idx": 0,
+ "is_hidden": 0,
+ "label": "Nexus ZKT",
+ "links": [
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Setup",
+   "link_count": 3,
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "dependencies": "",
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Nexus ZKT Settings",
+   "link_count": 0,
+   "link_to": "Nexus ZKT Settings",
+   "link_type": "DocType",
+   "onboard": 1,
+   "type": "Link"
+  },
+  {
+   "dependencies": "",
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Employee",
+   "link_count": 0,
+   "link_to": "Employee",
+   "link_type": "DocType",
+   "onboard": 1,
+   "type": "Link"
+  },
+  {
+   "dependencies": "",
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Shift Type",
+   "link_count": 0,
+   "link_to": "Shift Type",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Results",
+   "link_count": 2,
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "dependencies": "",
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Employee Checkin",
+   "link_count": 0,
+   "link_to": "Employee Checkin",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "dependencies": "",
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Nexus Attendance Log",
+   "link_count": 0,
+   "link_to": "Nexus Attendance Log",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  }
+ ],
+ "modified": "2026-09-09 10:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Nexus Biometric Attendance",
+ "name": "Nexus ZKT",
+ "number_cards": [],
+ "owner": "Administrator",
+ "parent_page": "",
+ "public": 1,
+ "quick_lists": [],
+ "roles": [],
+ "sequence_id": 25.0,
+ "shortcuts": [
+  {
+   "color": "Blue",
+   "doc_view": "",
+   "label": "Devices & Settings",
+   "link_to": "Nexus ZKT Settings",
+   "type": "DocType"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Employees",
+   "link_to": "Employee",
+   "type": "DocType"
+  },
+  {
+   "color": "Green",
+   "doc_view": "List",
+   "label": "Employee Checkin",
+   "link_to": "Employee Checkin",
+   "type": "DocType"
+  },
+  {
+   "color": "Orange",
+   "doc_view": "List",
+   "label": "Activity Log",
+   "link_to": "Nexus Attendance Log",
+   "type": "DocType"
+  }
+ ],
+ "title": "Nexus ZKT",
+ "type": "Workspace"
+}
