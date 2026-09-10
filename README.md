@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="logos/logo-256.png" width="96" alt="Nexus ZKT Integration">
+  <img src="logos/logo.svg" height="96" alt="Nexus ZKT Integration">
 
   <h1>Nexus ZKT Integration</h1>
 

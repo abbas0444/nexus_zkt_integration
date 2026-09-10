@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 553 644" width="553" height="644" role="img" aria-label="Nexus ZKT Integration">
+  <title>Nexus ZKT Integration</title>
+  <defs><linearGradient id="nzl" gradientUnits="userSpaceOnUse" x1="101.0" y1="98.0" x2="412.0" y2="415.0"><stop offset="0" stop-color="#0EA5A4"/><stop offset="1" stop-color="#2B7FFF"/></linearGradient></defs>
+  <g transform="translate(19.85 -42.00)">
+    <path d="M231.00 317.00L231.00 337.00A52.0 52.0 0 0 1 127.00 337.00L127.00 124.00L386.00 389.00L386.00 176.00A52.0 52.0 0 0 0 282.00 176.00L282.00 196.00" fill="none" stroke="url(#nzl)" stroke-width="52" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+  <path transform="translate(56.00 517.60) scale(0.118000 -0.118000)" fill="#101828" d="M690 0H519L233 433V0H62V702H233L519 267V702H690Z"/>
+  <path transform="translate(156.74 517.60) scale(0.118000 -0.118000)" fill="#101828" d="M233 565V423H462V291H233V137H492V0H62V702H492V565Z"/>
+  <path transform="translate(232.57 517.60) scale(0.118000 -0.118000)" fill="#101828" d="M492 0 349 215 223 0H29L254 357L24 702H223L364 490L488 702H682L459 348L691 0Z"/>
+  <path transform="translate(328.94 517.60) scale(0.118000 -0.118000)" fill="#101828" d="M230 702V282Q230 219 261.0 185.0Q292 151 352 151Q412 151 444.0 185.0Q476 219 476 282V702H647V283Q647 189 607.0 124.0Q567 59 499.5 26.0Q432 -7 349 -7Q266 -7 200.5 25.5Q135 58 97.0 123.5Q59 189 59 283V702Z"/>
+  <path transform="translate(424.13 517.60) scale(0.118000 -0.118000)" fill="#101828" d="M42 210H224Q228 171 251.0 150.5Q274 130 311 130Q349 130 371.0 147.5Q393 165 393 196Q393 222 375.5 239.0Q358 256 332.5 267.0Q307 278 260 292Q192 313 149.0 334.0Q106 355 75.0 396.0Q44 437 44 503Q44 601 115.0 656.5Q186 712 300 712Q416 712 487.0 656.5Q558 601 563 502H378Q376 536 353.0 555.5Q330 575 294 575Q263 575 244.0 558.5Q225 542 225 511Q225 477 257.0 458.0Q289 439 357 417Q425 394 467.5 373.0Q510 352 541.0 312.0Q572 272 572 209Q572 149 541.5 100.0Q511 51 453.0 22.0Q395 -7 316 -7Q239 -7 178.0 18.0Q117 43 80.5 92.0Q44 141 42 210Z"/>
+  <path transform="translate(221.25 587.60) scale(0.040000 -0.040000)" fill="#2D3350" d="M185 99H508V0H50V89L372 596H50V695H508V606Z"/>
+  <path transform="translate(263.57 587.60) scale(0.040000 -0.040000)" fill="#2D3350" d="M458 0 189 311V0H75V695H189V378L459 695H602L300 347L607 0Z"/>
+  <path transform="translate(308.89 587.60) scale(0.040000 -0.040000)" fill="#2D3350" d="M524 695V602H339V0H225V602H39V695Z"/>
+  <rect x="141.25" y="572.00" width="54.00" height="3.2" rx="1.6" fill="#5EC4C8"/>
+  <rect x="357.45" y="572.00" width="54.00" height="3.2" rx="1.6" fill="#5EC4C8"/>
+</svg>
