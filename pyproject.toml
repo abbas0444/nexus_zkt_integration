@@ -39,6 +39,14 @@ Changelog = "https://github.com/abbas0444/nexus_zkt_integration/blob/version-16/
 requires = ["flit_core >=3.4,<4"]
 build-backend = "flit_core.buildapi"
 
+# What this app needs to run. Frappe Cloud reads the frappe line to decide
+# which Frappe version a branch belongs to, and bench checks every line on
+# get-app. HRMS is where Employee Checkin lives, and HRMS needs ERPNext.
+[tool.bench.frappe-dependencies]
+frappe = ">=16.0.0,<17.0.0"
+erpnext = ">=16.0.0,<17.0.0"
+hrms = ">=16.0.0,<17.0.0"
+
 # These dependencies are only installed when developer mode is enabled
 [tool.bench.dev-dependencies]
 # package_name = "~=1.1.0"
