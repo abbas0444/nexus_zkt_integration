@@ -96,31 +96,18 @@ happened and why.
 - Frappe, ERPNext and **HRMS** version 16 (use the `version-15` branch for 15)
 - The Python package `pyzk` — installed for you with the app
 - Each device reachable from your server on its TCP port (4370 by default)
-- Background workers running (`bench start` in development, supervisor in production)
+- Background workers running (see [Installation](docs/installation.md))
 
 Tested against ZKTeco F22 and K40; anything speaking the ZK SDK protocol should
 behave the same.
 
 ## Install
 
-```bash
-cd $PATH_TO_YOUR_BENCH
-bench get-app https://github.com/abbas0444/nexus_zkt_integration --branch version-16
-bench --site your-site install-app nexus_zkt_integration
-```
-
 On **Frappe Cloud**, add the app to your bench and install it on your site from
-the dashboard — no commands needed.
+the dashboard.
 
-### Update
-
-```bash
-cd $PATH_TO_YOUR_BENCH/apps/nexus_zkt_integration && git pull
-cd $PATH_TO_YOUR_BENCH
-bench --site your-site migrate
-bench --site your-site clear-cache
-bench restart          # production only
-```
+Running your own server? The steps to install and update the app are in
+[docs/installation.md](docs/installation.md).
 
 ## Set it up
 
